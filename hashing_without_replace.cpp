@@ -24,18 +24,41 @@ public:
         return key % max;
     }
 
-    void insert() {
-        node n;
-        cout << "Enter phone number and name: ";
-        cin >> n.mn >> n.name;
+  void insert() {
+    node n;
+    cout << "Enter phone number and name: ";
+    cin >> n.mn >> n.name;
 
-        int ind = hashfun(n.mn);
-        int start = ind;
-        int prev = -1;
+    int ind = hashfun(n.mn);
+    int start = ind;
+    int prev = -1;
 
-        // Find empty slot
+    // Case 1: Target slot is empty
+    if (a[ind].mn == -1) {
+        a[ind] = n;
+        return;
+    }
+
+    // Case 2: Target slot has same hash index 
+    if (hashfun(a[ind].mn) == ind) {
+        while (a[ind].chain != -1) {
+            ind = a[ind].chain;
+        }
+        // Find next empty slot for chaining
+        int empty = (ind + 1) % max;
+        while (empty != ind && a[empty].mn != -1) {
+            empty = (empty + 1) % max;
+        }
+        if (empty == ind) {
+            cout << "Hash table is full!" << endl;
+            return;
+        }
+        a[empty] = n;
+        a[ind].chain = empty;
+    }
+    // Case 3: Target slot is occupied by a key with a different hash index 
+    else {
         while (a[ind].mn != -1) {
-            prev = ind;
             ind = (ind + 1) % max;
             if (ind == start) {
                 cout << "Hash table is full!" << endl;
@@ -43,12 +66,8 @@ public:
             }
         }
         a[ind] = n;
-        // Update chain
-        if (prev != -1) {
-            a[prev].chain = ind;
-        }
     }
-
+}
     void search() {
         long long int mn;
         cout << "Enter number to search: ";
